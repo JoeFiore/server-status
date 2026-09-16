@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; padding: 0; background: transparent; font-family: sans-serif; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    .offline { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+    .loading { background: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="status-pill">
+    <span id="dot" class="dot loading"></span>
+    <span id="text">CHECKING...</span>
+  </div>
+
+  <script>
+    async function check() {
+      const dot = document.getElementById('dot');
+      const text = document.getElementById('text');
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+        await fetch('https://joes-server-pc.dedyn.io:3923/', { mode: 'no-cors', signal: controller.signal });
+        clearTimeout(timeout);
+        dot.className = 'dot online';
+        text.innerText = 'JOES-SERVER-PC • ONLINE';
+      } catch (e) {
+        dot.className = 'dot offline';
+        text.innerText = 'JOES-SERVER-PC • OFFLINE';
+      }
+    }
+    check();
+    setInterval(check, 30000);
+  </script>
+</body>
+</html>
