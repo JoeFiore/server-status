@@ -1,64 +1,787 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joe's Downloads & Projects</title>
   <style>
-    body { margin: 0; padding: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .status-pill {
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-hover: #2d3d54;
+      --accent-color: #3b82f6;
+      --accent-hover: #2563eb;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+
+      /* Badge Color Variables */
+      --badge-music: rgba(236, 72, 153, 0.2);
+      --badge-music-text: #f472b6;
+      --badge-app: rgba(59, 130, 246, 0.2);
+      --badge-app-text: #60a5fa;
+      --badge-mc: rgba(34, 197, 94, 0.2);
+      --badge-mc-text: #4ade80;
+      --badge-video: rgba(168, 85, 247, 0.2);
+      --badge-video-text: #c084fc;
+      --badge-script: rgba(245, 158, 11, 0.2);
+      --badge-script-text: #fbbf24;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Embedded Top Server Status Bar */
+    .server-embed-wrapper {
+      width: 100%;
+      background: #0b1120;
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .server-embed-container {
+      width: 100%;
+      max-width: 1200px;
+      height: 160px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .server-embed-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Fullscreen Hero Header Section */
+    header.hero {
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+      background: radial-gradient(circle at top, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 1) 70%);
+      position: relative;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-content {
+      max-width: 800px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      margin-bottom: 35px;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      background-color: var(--accent-color);
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+      border-color: var(--text-muted);
+      box-shadow: none;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+      animation: bounce 2s infinite;
+      cursor: pointer;
+    }
+
+    .scroll-indicator svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .view-section {
+      margin-bottom: 80px;
+    }
+
+    .section-header {
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .subsection-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Infrastructure Card */
+    .uptime-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .uptime-info h3 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .uptime-info p {
+      color: var(--text-muted);
+    }
+
+    /* Side-Scrolling Filter Bar */
+    .filter-tags {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 8px;
+      max-width: 100%;
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-tags::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .filter-tags::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    .tag-btn {
+      flex-shrink: 0;
+      padding: 8px 18px;
+      border-radius: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tag-btn.active, .tag-btn:hover {
+      background: var(--accent-color);
+      color: #fff;
+      border-color: var(--accent-color);
+    }
+
+    /* Section Divider */
+    .section-divider {
+      border: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--border-color) 20%, var(--border-color) 80%, transparent 100%);
+      margin: 50px 0;
+    }
+
+    /* Grid Layouts */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 30px;
+    }
+
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      grid-column: 1 / -1;
+      padding: 20px 0;
+    }
+
+    /* Project Card */
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-color);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .badge {
+      align-self: flex-start;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 15px;
+    }
+
+    .badge-music { background: var(--badge-music); color: var(--badge-music-text); }
+    .badge-app { background: var(--badge-app); color: var(--badge-app-text); }
+    .badge-mc { background: var(--badge-mc); color: var(--badge-mc-text); }
+    .badge-video { background: var(--badge-video); color: var(--badge-video-text); }
+    .badge-script { background: var(--badge-script); color: var(--badge-script-text); }
+
+    .project-card h3 {
+      font-size: 1.35rem;
+      margin-bottom: 10px;
+    }
+
+    .project-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 15px;
+    }
+
+    .date-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Project Detail Overlay */
+    .detail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      display: none;
+      overflow-y: auto;
+      padding: 40px 20px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .detail-overlay.active {
+      display: block;
+    }
+
+    .detail-container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .back-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: #1e293b; /* Dark slate background */
-      border: 1px solid #334155;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #f8fafc;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 25px;
+      transition: color 0.2s;
     }
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
-    .offline { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-    .loading { background: #94a3b8; }
+
+    .back-btn:hover {
+      color: var(--text-color);
+    }
+
+    .detail-header {
+      margin-bottom: 25px;
+    }
+
+    .detail-title {
+      font-size: 2.2rem;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .detail-body {
+      color: #cbd5e1;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 30px;
+    }
+
+    .media-player-box {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+
+    .audio-player {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 25px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 35px 20px;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+      40% { transform: translate(-50%, -10px); }
+      60% { transform: translate(-50%, -5px); }
+    }
+
+    @media (max-width: 600px) {
+      .uptime-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      .detail-container {
+        padding: 25px;
+      }
+      .server-embed-container {
+        height: 200px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="status-pill">
-    <span id="dot" class="dot loading"></span>
-    <span id="text">CHECKING STATUS...</span>
+
+  <!-- Embedded Server Status Banner Above Header -->
+  <div class="server-embed-wrapper">
+    <div class="server-embed-container">
+      <iframe 
+        class="server-embed-frame" 
+        src="https://joefiore.github.io/server-status/" 
+        title="Live Server Status"
+        loading="lazy">
+        <p>Your browser does not support embedded frames. <a href="https://joefiore.github.io/server-status/" target="_blank">View Server Status directly</a>.</p>
+      </iframe>
+    </div>
   </div>
 
+  <!-- Hero Header Section -->
+  <header class="hero" id="hero">
+    <div class="hero-content">
+      <h1>Joe's Downloads & Projects</h1>
+      <p>No more OneDrive links... No more Google Drive Links... Explore my personal projects and downloads right from here!</p>
+      <a href="#projects" class="btn">
+        <span>Explore Projects</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M12 6v12"/></svg>
+      </a>
+    </div>
+
+    <!-- Scroll Down Arrow -->
+    <a href="#server-status" class="scroll-indicator">
+      <span>Scroll Down</span>
+      <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+    </a>
+  </header>
+
+  <main>
+    <!-- Server Status Section -->
+    <section class="view-section" id="server-status">
+      <div class="uptime-card">
+        <div class="uptime-info">
+          <h3>Server Infrastructure & Status</h3>
+          <p>Check if the server is working correctly. NOTE: UptimeRobot updates every 5 minutes!!</p>
+        </div>
+        <a href="https://stats.uptimerobot.com/LArexeMxjZ" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          Check Uptime Status
+        </a>
+      </div>
+    </section>
+
+    <!-- Projects Showcase Section -->
+    <section class="view-section" id="projects">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Projects Showcase</h2>
+          <p class="section-desc">Browse through my pinned highlights and latest projects.</p>
+        </div>
+        
+        <!-- Side-Scrolling Category Tag Bar -->
+        <div class="filter-tags">
+          <button class="tag-btn active" onclick="filterProjects('all', event)">All</button>
+          <button class="tag-btn" onclick="filterProjects('music', event)">Music</button>
+          <button class="tag-btn" onclick="filterProjects('app', event)">Web Apps</button>
+          <button class="tag-btn" onclick="filterProjects('mc', event)">Minecraft Packs</button>
+          <button class="tag-btn" onclick="filterProjects('video', event)">Video Productions</button>
+          <button class="tag-btn" onclick="filterProjects('script', event)">Scripts & Tools</button>
+        </div>
+      </div>
+
+      <!-- Pinned Section -->
+      <div id="pinnedSection">
+        <h3 class="subsection-title">📌 Pinned Projects</h3>
+        <div class="projects-grid" id="pinnedGrid"></div>
+      </div>
+
+      <!-- Section Divider Line -->
+      <hr class="section-divider" />
+
+      <!-- Newest Section -->
+      <div id="newestSection">
+        <h3 class="subsection-title">✨ Newest Projects</h3>
+        <div class="projects-grid" id="newestGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Full Detail View Modal -->
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-container">
+      <button class="back-btn" onclick="closeDetails()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Showcase
+      </button>
+      
+      <div class="detail-header">
+        <span id="detailBadge" class="badge">Category</span>
+        <h2 id="detailTitle" class="detail-title">Project Title</h2>
+        <p id="detailDate" class="date-text">Released on Date</p>
+      </div>
+
+      <div id="detailMediaBox" class="media-player-box" style="display: none;">
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">Audio Preview Track</p>
+        <audio id="audioPreview" class="audio-player" controls>
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+
+      <div id="detailDescription" class="detail-body">
+        Full project description details go here...
+      </div>
+
+      <div class="detail-actions">
+        <a id="detailDownloadBtn" href="#" target="_blank" class="btn">
+          <span>Download File</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </a>
+        <a id="detailServerBtn" href="https://joes-server-pc.dedyn.io:3923" target="_blank" class="btn btn-secondary">
+          Open Copyparty Server
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    Powered by Copyparty, GitHub Pages, and Uptime Robot. Built for Joe's Music & Personal Projects.
+  </footer>
+
   <script>
-    // Paste your Monitor-Specific API key from UptimeRobot below
-    const apiKey = 'm804004857-37d621113a253d27188564d7'; 
+    // Project Data Definition
+    const projectsData = [
+      {
+        id: 'midnight-groove',
+        pinned: true,
+        title: 'Midnight Groove EP',
+        category: 'music',
+        badgeClass: 'badge-music',
+        badgeLabel: 'Music Track',
+        shortDesc: 'An atmospheric lo-fi & synth melody created for relaxation and late-night coding sessions.',
+        fullDesc: 'Midnight Groove EP is a 3-track musical project produced with lush synth pads and relaxing beat loops. Perfect for ambient background listening or focusing while programming.',
+        date: 'Updated: Sep 2026',
+        downloadUrl: 'https://joes-server-pc.dedyn.io:3923/music/midnight-groove.mp3',
+        audioPreview: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+      },
+      {
+        id: 'server-file-manager',
+        pinned: true,
+        title: 'Copyparty Dashboard UI',
+        category: 'app',
+        badgeClass: 'badge-app',
+        badgeLabel: 'Web App',
+        shortDesc: 'A fast and responsive landing interface customized for quick host server downloads.',
+        fullDesc: 'Designed to serve as a custom modern portal for accessing files directly hosted on the server, featuring smooth navigation and direct Uptime Robot monitoring integration.',
+        date: 'Updated: Aug 2026',
+        downloadUrl: 'https://joes-server-pc.dedyn.io:3923/'
+      },
+      {
+        id: 'synthwave-vibe',
+        pinned: false,
+        title: 'Neon Skyline Single',
+        category: 'music',
+        badgeClass: 'badge-music',
+        badgeLabel: 'Music Track',
+        shortDesc: 'Upbeat 80s synthwave single with energetic drums and retro synthesizer leads.',
+        fullDesc: 'Neon Skyline brings high-energy retro synth vibes with classic analogue basslines and driving electronic rhythms.',
+        date: 'Updated: Jul 2026',
+        downloadUrl: 'https://joes-server-pc.dedyn.io:3923/music/neon-skyline.mp3',
+        audioPreview: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+      },
+      {
+        id: 'mc-resource-pack',
+        pinned: false,
+        title: 'Dark Mode MC GUI Pack',
+        category: 'mc',
+        badgeClass: 'badge-mc',
+        badgeLabel: 'Minecraft Pack',
+        shortDesc: 'A sleek, dark theme replacement texture pack for the standard Minecraft user interface.',
+        fullDesc: 'Transforms all inventory containers, crafting tables, and HUD bars into a modern sleek dark slate style. Helps reduce eye strain during long gaming sessions.',
+        date: 'Updated: Jun 2026',
+        downloadUrl: 'https://joes-server-pc.dedyn.io:3923/minecraft/dark-gui-pack.zip'
+      },
+      {
+        id: 'on-the-prowl-intro',
+        pinned: true,
+        title: 'On The Prowl Broadcast Intro',
+        category: 'video',
+        badgeClass: 'badge-video',
+        badgeLabel: 'Video Production',
+        shortDesc: 'Motion graphics intro sequence designed for school news broadcasts.',
+        fullDesc: 'Animated title sequence and lower thirds overlay graphic package designed in Adobe After Effects for studio daily stream broadcasts.',
+        date: 'Updated: Oct 2025',
+        downloadUrl: 'https://joes-server-pc.dedyn.io:3923/videos/intro.mp4'
+      },
+      {
+        id: 'uefn-verse-helper',
+        pinned: false,
+        title: 'Verse Utility Scripts',
+        category: 'script',
+        badgeClass: 'badge-script',
+        badgeLabel: 'Verse Script',
+        shortDesc: 'Custom Verse device scripts for UEFN map mechanics.',
+        fullDesc: 'Collection of utility functions for custom game modes and device wiring in Unreal Editor for Fortnite.',
+        date: 'Updated: Aug 2026',
+        downloadUrl: 'https://joes-server-pc.dedyn.io:3923/scripts/verse-helper.zip'
+      }
+    ];
 
-    async function checkStatus() {
-      const dot = document.getElementById('dot');
-      const text = document.getElementById('text');
-      try {
-        const response = await fetch(`https://api.uptimerobot.com/v2/getMonitors`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `api_key=${apiKey}&format=json`
-        });
-        const data = await response.json();
-        const status = data.monitors[0].status;
+    // Helper to generate Card DOM Element
+    function createCardElement(project) {
+      const card = document.createElement('div');
+      card.className = 'project-card';
+      card.innerHTML = `
+        <div>
+          <span class="badge ${project.badgeClass}">${project.badgeLabel}</span>
+          <h3>${project.title}</h3>
+          <p>${project.shortDesc}</p>
+        </div>
+        <div class="card-footer">
+          <span class="date-text">${project.date}</span>
+          <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openDetails('${project.id}')">View Details</button>
+        </div>
+      `;
+      return card;
+    }
 
-        // Status 2 means UP/Online in UptimeRobot
-        if (status === 2) {
-          dot.className = 'dot online';
-          text.innerText = 'JOES-SERVER-PC • ONLINE';
-        } else {
-          dot.className = 'dot offline';
-          text.innerText = 'JOES-SERVER-PC • OFFLINE';
-        }
-      } catch (e) {
-        dot.className = 'dot offline';
-        text.innerText = 'JOES-SERVER-PC • UNREACHABLE';
+    // Render Projects for Pinned & Newest Sections
+    function renderProjects(filter = 'all') {
+      const pinnedGrid = document.getElementById('pinnedGrid');
+      const newestGrid = document.getElementById('newestGrid');
+      
+      pinnedGrid.innerHTML = '';
+      newestGrid.innerHTML = '';
+
+      const filtered = filter === 'all' 
+        ? projectsData 
+        : projectsData.filter(p => p.category === filter);
+
+      const pinnedItems = filtered.filter(p => p.pinned);
+      const newestItems = filtered.filter(p => !p.pinned);
+
+      // Populate Pinned
+      if (pinnedItems.length > 0) {
+        pinnedItems.forEach(project => pinnedGrid.appendChild(createCardElement(project)));
+      } else {
+        pinnedGrid.innerHTML = '<p class="empty-state">No pinned projects in this category.</p>';
+      }
+
+      // Populate Newest
+      if (newestItems.length > 0) {
+        newestItems.forEach(project => newestGrid.appendChild(createCardElement(project)));
+      } else {
+        newestGrid.innerHTML = '<p class="empty-state">No newer projects in this category.</p>';
       }
     }
 
-    checkStatus();
-    setInterval(checkStatus, 60000); // Check status every 60 seconds
+    // Category Tag Switcher
+    function filterProjects(category, e) {
+      document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
+      if (e && e.target) {
+        e.target.classList.add('active');
+      }
+      renderProjects(category);
+    }
+
+    // Open Full Detail Modal Overlay
+    function openDetails(projectId) {
+      const project = projectsData.find(p => p.id === projectId);
+      if (!project) return;
+
+      document.getElementById('detailTitle').innerText = project.title;
+      document.getElementById('detailBadge').className = `badge ${project.badgeClass}`;
+      document.getElementById('detailBadge').innerText = project.badgeLabel;
+      document.getElementById('detailDate').innerText = project.date;
+      document.getElementById('detailDescription').innerText = project.fullDesc;
+      
+      const downloadBtn = document.getElementById('detailDownloadBtn');
+      downloadBtn.href = project.downloadUrl;
+
+      // Audio Player Logic
+      const mediaBox = document.getElementById('detailMediaBox');
+      const audio = document.getElementById('audioPreview');
+      if (project.audioPreview) {
+        audio.src = project.audioPreview;
+        mediaBox.style.display = 'block';
+      } else {
+        mediaBox.style.display = 'none';
+        audio.pause();
+      }
+
+      document.getElementById('detailOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close Modal Overlay
+    function closeDetails() {
+      const audio = document.getElementById('audioPreview');
+      audio.pause();
+      document.getElementById('detailOverlay').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Initialize Page
+    window.onload = function() {
+      renderProjects('all');
+    };
   </script>
 </body>
 </html>
