@@ -2,49 +2,63 @@
 <html>
 <head>
   <style>
-    body { margin: 0; padding: 0; background: transparent; font-family: sans-serif; }
+    body { margin: 0; padding: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
+      background: #1e293b; /* Dark slate background */
+      border: 1px solid #334155;
       padding: 6px 14px;
       border-radius: 9999px;
       font-size: 12px;
       font-weight: 700;
-      color: #334155;
+      color: #f8fafc;
     }
     .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .online { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
-    .offline { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+    .online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+    .offline { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
     .loading { background: #94a3b8; }
   </style>
 </head>
 <body>
   <div class="status-pill">
     <span id="dot" class="dot loading"></span>
-    <span id="text">CHECKING...</span>
+    <span id="text">CHECKING STATUS...</span>
   </div>
 
   <script>
-    async function check() {
+    // Paste your Monitor-Specific API key from UptimeRobot below
+    const apiKey = 'm778918918-3e92c097147760ee39d02d36'; 
+
+    async function checkStatus() {
       const dot = document.getElementById('dot');
       const text = document.getElementById('text');
       try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 3000);
-        await fetch('https://joes-server-pc.dedyn.io:3923/', { mode: 'no-cors', signal: controller.signal });
-        clearTimeout(timeout);
-        dot.className = 'dot online';
-        text.innerText = 'JOES-SERVER-PC • ONLINE';
+        const response = await fetch(`https://api.uptimerobot.com/v2/getMonitors`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `api_key=${apiKey}&format=json`
+        });
+        const data = await response.json();
+        const status = data.monitors[0].status;
+
+        // Status 2 means UP/Online in UptimeRobot
+        if (status === 2) {
+          dot.className = 'dot online';
+          text.innerText = 'JOES-SERVER-PC • ONLINE';
+        } else {
+          dot.className = 'dot offline';
+          text.innerText = 'JOES-SERVER-PC • OFFLINE';
+        }
       } catch (e) {
         dot.className = 'dot offline';
-        text.innerText = 'JOES-SERVER-PC • OFFLINE';
+        text.innerText = 'JOES-SERVER-PC • UNREACHABLE';
       }
     }
-    check();
-    setInterval(check, 30000);
+
+    checkStatus();
+    setInterval(checkStatus, 60000); // Check status every 60 seconds
   </script>
 </body>
 </html>
